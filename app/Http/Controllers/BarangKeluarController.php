@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\Satuan;
 use App\Models\Customer;
+use App\Models\Perusahaan;
 use App\Models\BarangKeluar;
+use App\Models\StokCabang;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -20,7 +22,8 @@ class BarangKeluarController extends Controller
         return view('barang-keluar.index', [
             'barangs'           => Barang::all(),
             'barangKeluar'      => BarangKeluar::all(),
-            'customers'         => Customer::all()
+            'perusahaans'   => Perusahaan::all(),
+            'customers'         => Perusahaan::all()
         ]);
     }
 
@@ -29,7 +32,8 @@ class BarangKeluarController extends Controller
         return response()->json([
             'success'   => true,
             'data'      => BarangKeluar::all(),
-            'customer'  => Customer::all()
+            'perusahaans'   => Perusahaan::all(),
+            'customer'  => Perusahaan::all()
         ]);
     }
 
@@ -49,56 +53,76 @@ class BarangKeluarController extends Controller
      */
     public function store(Request $request)
     {
+        // var_dump($request->customer_id);die;
         $validator = Validator::make($request->all(), [
             'tanggal_keluar'     => 'required',
             'nama_barang'        => 'required',
-            'customer_id'        => 'required',
             'jumlah_keluar'      => [
                 'required',
                 function ($attribute, $value, $fail) use ($request) {
                     $nama_barang = $request->nama_barang;
                     $barang = Barang::where('nama_barang', $nama_barang)->first();
-        
-                    if ($value > $barang->stok) {
+    
+                    if ($barang && $value > $barang->stok) {
                         $fail("Stok Tidak Cukup !");
                     }
                 },
             ],
+            'perusahaan_id'      => 'required|exists:perusahaan,id', // wajib diisi
         ],[
-            'tanggal_keluar.required'    => 'Pilih Barang Terlebih Dahulu !',
-            'nama_barang.required'       => 'Form Nama Barang Wajib Di Isi !',
-            'jumlah_keluar.required'     => 'Form Jumlah Stok Masuk Wajib Di Isi !',
-            'customer_id.required'       => 'Pilih Customer !'
+            'tanggal_keluar.required' => 'Pilih Barang Terlebih Dahulu !',
+            'nama_barang.required'    => 'Form Nama Barang Wajib Di Isi !',
+            'jumlah_keluar.required'  => 'Form Jumlah Stok Masuk Wajib Di Isi !',
+            'perusahaan_id.required'  => 'Pilih Perusahaan !',
+            'perusahaan_id.exists'    => 'Perusahaan Tidak Valid !',
         ]);
-
+    
         if($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
-
-
+    
+        // Simpan barang keluar
         $barangKeluar = BarangKeluar::create([
-            'tanggal_keluar'    => $request->tanggal_keluar,
-            'nama_barang'       => $request->nama_barang,
-            'jumlah_keluar'     => $request->jumlah_keluar,
-            'customer_id'       => $request->customer_id,
-            'kode_transaksi'    => $request->kode_transaksi,
-            'user_id'           => auth()->user()->id
-        ]); 
-
-        if ($barangKeluar) {
-            $barang = Barang::where('nama_barang', $request->nama_barang)->first();
-            if ($barang) {
-                $barang->stok -= $request->jumlah_keluar;
-                $barang->save();
-            }
+            'tanggal_keluar' => $request->tanggal_keluar,
+            'nama_barang'    => $request->nama_barang,
+            'jumlah_keluar'  => $request->jumlah_keluar,
+            'customer_id'    => $request->customer_id, // boleh null
+            'perusahaan_id'  => $request->perusahaan_id,
+            'kode_transaksi' => $request->kode_transaksi,
+            'user_id'        => auth()->user()->id
+        ]);
+    
+        // Kurangi stok di tabel barang
+        $barang = Barang::where('nama_barang', $request->nama_barang)->first();
+        if ($barang) {
+            $barang->stok -= $request->jumlah_keluar;
+            $barang->save();
         }
-
+    
+        // Update atau create stok cabang
+        $stokCabang = StokCabang::where('cabang_id', $request->perusahaan_id)
+                        ->where('barang_id', $barang->id)
+                        ->first();
+    
+        if ($stokCabang) {
+            $stokCabang->stok += $request->jumlah_keluar;
+            $stokCabang->save();
+        } else {
+            StokCabang::create([
+                'cabang_id' => $request->perusahaan_id,
+                'barang_id' => $barang->id,
+                'stok'      => $request->jumlah_keluar,
+                // 'stok_minimum' tidak diisi
+            ]);
+        }
+    
         return response()->json([
-            'success'   => true,
-            'message'   => 'Data Berhasil Disimpan !',
-            'data'      => $barangKeluar
+            'success' => true,
+            'message' => 'Data Berhasil Disimpan !',
+            'data'    => $barangKeluar
         ]);
     }
+    
 
     /**
      * Display the specified resource.

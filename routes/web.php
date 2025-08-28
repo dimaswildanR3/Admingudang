@@ -18,6 +18,12 @@ use App\Http\Controllers\LaporanBarangMasukController;
 use App\Http\Controllers\LaporanStokController;
 use App\Http\Controllers\ManajemenUserController;
 use App\Http\Controllers\UbahPasswordController;
+use App\Http\Controllers\PerusahaanController;
+use App\Http\Controllers\SuratPengajuanController;
+use App\Http\Controllers\StokCabangController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\TulisSuratController;
+use App\Http\Controllers\SuratController;
 use App\Models\BarangKeluar;
 use App\Models\BarangMasuk;
 
@@ -31,10 +37,29 @@ use App\Models\BarangMasuk;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+use App\Http\Controllers\PengumumanController;
+
+Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumuman.index');
 
 
 Route::middleware('auth')->group(function () {
+    Route::resource('perusahaan', PerusahaanController::class);
+    Route::resource('surat-pengajuan', SuratPengajuanController::class);
+    Route::resource('stok-cabang', StokCabangController::class);
+    Route::get('/notification/{id}/read', [App\Http\Controllers\NotificationController::class, 'read'])->name('notification.read');
 
+Route::resource('surat', SuratController::class);
+Route::resource('tulis', TulisSuratController::class);
+Route::post('/surat/{surat}/approve', [SuratController::class, 'approve'])->name('surat.approve');
+Route::post('/surat/{surat}/reject', [SuratController::class, 'reject'])->name('surat.reject');
+Route::get('/stok-cabang/view/{cabang_id}', [StokCabangController::class, 'viewByCabang']);
+// Route::prefix('surat/tulis')->group(function() {
+//     Route::get('/', [SuratTulisController::class, 'index'])->name('tulis.index');
+//     Route::post('/', [SuratTulisController::class, 'store'])->name('tulis.store');
+// });
+    Route::get('/perusahaan/get-data', [App\Http\Controllers\PerusahaanController::class, 'getData']);
+
+    
     Route::group(['middleware' => 'checkRole:superadmin'], function(){
         Route::get('/data-pengguna/get-data', [ManajemenUserController::class, 'getDataPengguna']);
         Route::get('/api/role/', [ManajemenUserController::class, 'getRole']);

@@ -8,6 +8,7 @@
         <div class="ml-auto">
             <a href="javascript:void(0)" class="btn btn-primary" id="button_tambah_barangKeluar"><i class="fa fa-plus"></i>
                 Barang Keluar</a>
+                <a href="javascript:void(0)" class="btn btn-danger" id="print-barang-keluar"><i class="fa fa-sharp fa-light fa-print"></i> Print PDF</a>
         </div>
     </div>
 
@@ -153,6 +154,7 @@
             let nama_barang = $('#nama_barang').val();
             let jumlah_keluar = $('#jumlah_keluar').val();
             let customer_id = $('#customer_id').val();
+            let perusahaan_id= $('#perusahaan_id').val();
             let token = $("meta[name='csrf-token']").attr("content");
 
             let formData = new FormData();
@@ -160,7 +162,8 @@
             formData.append('tanggal_keluar', tanggal_keluar);
             formData.append('nama_barang', nama_barang);
             formData.append('jumlah_keluar', jumlah_keluar);
-            formData.append('customer_id', customer_id);
+            formData.append('customer_id', customer_id ? customer_id : ''); // optional
+            formData.append('perusahaan_id', perusahaan_id);
             formData.append('_token', token);
 
             $.ajax({
@@ -371,5 +374,15 @@
 
         // Mengisi nilai input field dengan tanggal hari ini
         document.getElementById('tanggal_keluar').value = formattedDate;
+
+        $('#print-barang-keluar').click(function() {
+                let tglMulai = $('#tanggal_mulai').val();
+                let tglSelesai = $('#tanggal_selesai').val();
+                let url = '/laporan-barang-keluar/print-barang-keluar';
+                if(tglMulai && tglSelesai){
+                    url += `?tanggal_mulai=${tglMulai}&tanggal_selesai=${tglSelesai}`;
+                }
+                window.open(url, '_blank');
+            });
     </script>
 @endsection

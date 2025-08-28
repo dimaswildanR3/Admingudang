@@ -1,7 +1,7 @@
 <x-guest-layout>
     <style>
         body {
-            background-image: url('{{ asset('images/bg.png') }}');
+            background-image: url('{{ asset('images/bg1.png') }}');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -13,7 +13,9 @@
                     transition duration-300 ease-in-out hover:shadow-2xl hover:ring-4 hover:ring-white">
             <!-- Header -->
             <div class="mb-6 text-center">
-                <h1 class="text-3xl font-bold text-gray-800">Login</h1>
+                <h1 class="text-3xl font-bold text-gray-800">Hai, Welcome! <br>
+                ERP My Logistic</h1>
+                <!-- <h1 class="text-3xl font-bold text-gray-800">Login</h1> -->
                 <p class="text-sm text-gray-500">Silakan masuk untuk melanjutkan</p>
             </div>
 

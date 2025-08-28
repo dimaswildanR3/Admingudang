@@ -8,6 +8,7 @@
         <div class="ml-auto">
             <a href="javascript:void(0)" class="btn btn-primary" id="button_tambah_barangMasuk"><i class="fa fa-plus"></i>
                 Barang Masuk</a>
+                <a href="javascript:void(0)" class="btn btn-danger" id="print-barang-masuk"><i class="fa fa-print"></i> Print PDF</a>
         </div>
     </div>
 
@@ -274,6 +275,15 @@
                 }
             });
         });
+        $('#print-barang-masuk').click(function() {
+                let tglMulai = $('#tanggal_mulai').val();
+                let tglSelesai = $('#tanggal_selesai').val();
+                let url = '/laporan-barang-masuk/print-barang-masuk';
+                if(tglMulai && tglSelesai){
+                    url += `?tanggal_mulai=${tglMulai}&tanggal_selesai=${tglSelesai}`;
+                }
+                window.open(url, '_blank');
+            });
     </script>
 
 

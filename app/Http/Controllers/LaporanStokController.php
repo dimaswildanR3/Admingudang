@@ -24,19 +24,20 @@ class LaporanStokController extends Controller
     public function getData(Request $request)
     {
         $selectedOption = $request->input('opsi');
-
+    
         if($selectedOption == 'semua'){
-             $barangs = Barang::all();
+            $barangs = Barang::with('satuan')->get();
         } elseif ($selectedOption == 'minimum'){
-             $barangs = Barang::where('stok', '<=', 10)->get();
+            $barangs = Barang::with('satuan')->where('stok', '<=', 10)->get();
         } elseif ($selectedOption == 'stok-habis'){
-             $barangs = Barang::where('stok', 0)->get();
+            $barangs = Barang::with('satuan')->where('stok', 0)->get();
         } else {
-             $barangs = Barang::all();
+            $barangs = Barang::with('satuan')->get();
         }
- 
+    
         return response()->json($barangs);
     }
+    
 
     /**
      * Print Data 

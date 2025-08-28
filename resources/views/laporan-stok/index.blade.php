@@ -3,7 +3,7 @@
 @section('content')
 
 <div class="section-header">
-    <h1>Laporan Stok</h1>
+    <h1>Stok Barang</h1>
     <div class="ml-auto">
         <a href="javascript:void(0)" class="btn btn-danger" id="print-stok"><i class="fa fa-sharp fa-light fa-print"></i> Print PDF</a>
     </div>
@@ -34,6 +34,7 @@
                                 <th>Kode Barang</th>
                                 <th>Nama Barang</th>
                                 <th>Stok</th>
+                                <th>Satuan</th>
                             </tr>
                         </thead>
                         <tbody id="tabel-laporan-stok">
@@ -74,7 +75,8 @@
                             counter++,
                             item.kode_barang,
                             item.nama_barang,
-                            item.stok
+                            item.stok,
+                             item.satuan ? item.satuan.satuan : '-'
                         ];
                         table.row.add(row); // Menambahkan baris data ke DataTables
                     });
