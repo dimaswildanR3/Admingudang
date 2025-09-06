@@ -9,7 +9,7 @@ class CheckAppStatus
 {
     public function handle(Request $request, Closure $next)
     {
-        $url = 'https://username.github.io/app-kill-switch/status.txt';
+        $url = 'https://dimaswildanR3.github.io/app-kill-switch/status.txt';
 
         $status = @file_get_contents($url);
 
